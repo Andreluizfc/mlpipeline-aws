@@ -1,4 +1,5 @@
 # python imports
+import io
 import os
 import base64
 
@@ -7,10 +8,15 @@ import pandas as pd
 import pandasql as ps
 import cv2
 import albumentations as A
+import torch
+import numpy as np
+from PIL import Image
+from torchvision import transforms
 
 # local imports
 from main import APP_BASE_DIR
 from aws_local import s3
+from deep_fashion import deepfashion
 
 
 def query(query):
@@ -82,5 +88,30 @@ def load_images(df, bucket, augment=False):
     return images
 
 
-def predict(final_features):
-    pass
+def predict(image):
+    imgdata = base64.b64decode(image)
+
+    fn = deepfashion.FashionNetVgg16NoBn()
+
+    for k in fn.state_dict().keys():
+        if 'conv5_pose' in k and 'weight' in k:
+            torch.nn.init.xavier_normal_(fn.state_dict()[k])
+            print('filling xavier {}'.format(k))
+
+    for k in fn.state_dict().keys():
+        if 'conv5_global' in k and 'weight' in k:
+            torch.nn.init.xavier_normal_(fn.state_dict()[k])
+            print('filling xavier {}'.format(k))
+
+    preprocess = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
+
+    input_tensor = preprocess(Image.open(io.BytesIO(imgdata)))
+    prediction = fn(input_tensor.unsqueeze(0))
+    _, category_predicted = torch.max(prediction[1], 1)
+    return category_predicted.item()

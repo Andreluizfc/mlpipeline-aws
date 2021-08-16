@@ -17,6 +17,21 @@ def healthcheck():
     return resp
 
 
+@ app.route('/predict', methods=('GET',))
+def predict():
+    request_data = request.get_json()
+    image = request_data['image']
+    prediction = utils.predict(image.encode())
+    resp = make_response(
+        jsonify({
+            "Status": "ok",
+            "Prediction": prediction
+        }), 200,)
+
+    resp.headers["Content-Type"] = "application/json"
+    return resp
+
+
 @ app.route('/query', methods=('GET',))
 def query():
     request_data = request.get_json()
