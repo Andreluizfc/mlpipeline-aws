@@ -45,7 +45,10 @@ Install ML-pipeline in your local machine using anaconda and a virtual environme
 
 3. Download and Install [Anaconda](https://docs.anaconda.com/anaconda/install/index.html)
     * Navigate to ml-pipeline folder.
-    * Create a virtual environment with `conda env create -f requirements.txt` (loacated in the root of this project)
+    * Create a virtual environment with `conda create -n myenv python=3.7` (loacated in the root of this project)
+    * Activate your env with `conda activate myenv`
+    * Install requiriments with `pip install --upgrade pip wheel setuptools` and `pip install --upgrade -r requirements.txt`
+    
 
 4. Install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
     * Open terminal and create credentials with `aws configure`.
@@ -71,7 +74,9 @@ Install ML-pipeline in your local machine using anaconda and a virtual environme
 Install ML-pipeline in your local machine using Docker.
 
 #### Installation
-1. 
+1. Navigate to the folder where the Dockerfile is located.
+2. run command `docker build -t ml_pipeline:1.0 .`
+3. Then run the docker image on port 5050 `docker run -p 5050:5050 ml_pipeline:1.0`
 
 <a name=cli />
 
